@@ -1,0 +1,23 @@
+.container {
+    height: 98vh;
+    width: 98vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.content {
+    height: 70vh;
+    width: 60vw;
+    background-color: rgba(0, 0, 0, 0.722);
+    border-radius: 2vh;
+    border: 1vw solid rgb(83, 83, 83);
+    color: white;
+    background-image: url('background.png'); 
+    background-size: cover;
+}
+
+h1 {
+    font-size: 5vh;
+    margin-left: 16.7vw;
+}

@@ -1,5 +1,6 @@
 ESX = exports.es_extended:getSharedObject()
 local ped = nil
+IsPanelOpen = false
 
 CreateThread(function()
     local pm = Config.NPCQuestPed.pedModel
@@ -11,28 +12,28 @@ CreateThread(function()
     ped = CreatePed(4, pm, pc.x, pc.y, pc.z, Config.NPCQuestPed.pedHeading, false, true)
     FreezeEntityPosition(ped, true)
 
-    while true do
-        local sleep = 1000
-        local mped = PlayerPedId()
-        local mc = GetEntityCoords(mped)
-        local distance = (mc - pc)
-
-        if distance <= 2.0 then
-            if IsControlJustPressed(0, 36) then
-                SendNUIMessage({
-                    action = 'open',
-                    list = Config.Container
-                })
-            end
+    exports.ox_target:addLocalEntity(ped, {
+        label = 'Container Robbery',
+        name = 'lynx_containerrobbery:target',
+        icon = 'fas fa-c',
+        distance = 4.0,
+        debug = true,
+        onSelect = function(data)
+            SendNUIMessage({
+                action = 'open'
+            })
+            IsPanelOpen = not IsPanelOpen
+            SetNuiFocus(IsPanelOpen, IsPanelOpen)
         end
-        Wait(sleep)
-    end
+    })
 end)
 
 RegisterNUICallback('ClosePanel', function(data, cb)
     SendNUIMessage({
         action = 'close'
     })
+    IsPanelOpen = not IsPanelOpen
+    SetNuiFocus(IsPanelOpen, IsPanelOpen)
     cb()
 end)
 
