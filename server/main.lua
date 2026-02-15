@@ -1,5 +1,26 @@
 function LynxAntiCheatSecurity(source)
-    
+    local xPlayer = ESX.GetPlayerFromId(source)
+    if not xPlayer then return end
+    local text = 'LYNX CONTAINER ROBBERY [ANTI CHEAT]'..
+                '\nPlayer: '..GetPlayerName(source)..' ('..source..')'..
+                '\nLicense: '..ESX.GetPlayerFromId(source).identifier
+
+    xPlayer.kick('You have been kicked for suspected cheating. If you believe this is a mistake, please contact support.')
+end
+
+function LynxLogSecurity(message)
+  if not Config.Webhook then return end
+  local text = {
+    {
+      ["color"] = "16711680",
+      ["title"] = "**LYNX CONTAINER ROBBERY [SECURITY LOG]**",
+      ["description"] = message,
+      ["footer"] = {
+        ["text"] = "Lynx Container Robbery | ".. os.date("%Y-%m-%d %H:%M:%S")
+      }
+    }
+  }
+  PerformHttpRequest(Config.Webhook, function(err, text, headers) end, 'POST', json.encode({username = "Lynx Container Robbery", embeds = text}), { ['Content-Type'] = 'application/json' })
 end
 
 ESX.RegisterServerCallback('Lynx_Containerrobbery:PoliceJob', function(source, cb)
@@ -36,7 +57,6 @@ RegisterNetEvent('Lynx_Containerrobbery:Giveloot', function(cid, id, loot)
                 break
             end
         end
-
     end
 
     if addItem then
@@ -46,6 +66,7 @@ RegisterNetEvent('Lynx_Containerrobbery:Giveloot', function(cid, id, loot)
     else
         print('Lynx_Containerrobbery: Possible Exploit Attempt - Player: ' .. xPlayer.identifier)
         --Security measure to prevent exploits, you can log this or take action against the player
+        LynxAntiCheatSecurity(source)
     end
 
     MySQL.Async.execute('UPDATE Lynx_Containerrobbery SET xp = xp + @xp WHERE identifier = @identifier', {

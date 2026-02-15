@@ -10,6 +10,8 @@ Config.PoliceJob = {
     'police'
 }
 
+Config.Webhook = '' -- Webhook for Security Logs, you can use this to log possible exploits or cheaters
+
 Config.Container = {
     [1] = {
         name = 'Kezdő Container',
@@ -20,6 +22,7 @@ Config.Container = {
                 coords = vector3(0,0,0),
                 heading = 0,
                 model = 'prop_container_01a',
+                difficulty = {'Easy','medium','medium'}, -- For minigame
                 loot = {
                     {item = 'bread', count = 5},
                     {item = 'water', count = 3},

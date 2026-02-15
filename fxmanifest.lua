@@ -1,5 +1,6 @@
 fx_version 'cerulean'
 game 'gta5'
+lua54 'yes'
 
 author 'Mrk'
 
@@ -22,6 +23,7 @@ client_script {
 shared_script {
     '@es_extended/imports.lua',
     '@oxmysql/lib/MySQL.lua',
+    '@ox_lib/init.lua',
     'config.lua'
 }
 

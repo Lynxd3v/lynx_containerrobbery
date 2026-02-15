@@ -1,6 +1,8 @@
 ESX = exports.es_extended:getSharedObject()
 local ped = nil
 local IsPanelOpen = false
+local lib = exports.ox_lib
+local Containerprop = {}
 
 CreateThread(function()
     local pm = Config.NPCQuestPed.pedModel
@@ -67,7 +69,7 @@ RegisterNUICallback('ClosePanel', function(data, cb)
     cb()
 end)
 
-RegisterNUICallback('StartQuest',function (data, cb)
+RegisterNUICallback('StartQuest', function(data, cb)
     local Container = Config.Container[data.id]
     local xplevel = 0
     ESX.TriggerServerCallback('Lynx_Containerrobbery:GetXpLevel', function(xplevel)
@@ -77,14 +79,14 @@ RegisterNUICallback('StartQuest',function (data, cb)
     end)
 
     if xplevel < Container.xp then
-        cb({success = false, message = 'You do not have enough XP to start this quest.'})
+        cb({ success = false, message = 'You do not have enough XP to start this quest.' })
     else
-        cb({success = true, message = 'Quest started successfully.'})
+        cb({ success = true, message = 'Quest started successfully.' })
         TriggerServerEvent('Lynx_Containerrobbery:StartQuest', data.id)
     end
 end)
 
-RegisterNetEvent('Lynx_Containerrobbery:StartQuest',function (id)
+RegisterNetEvent('Lynx_Containerrobbery:StartQuest', function(id)
     local Container = Config.Container[id]
 
     for cid, v in ipairs(Container.container) do
@@ -110,20 +112,41 @@ RegisterNetEvent('Lynx_Containerrobbery:StartQuest',function (id)
 
         local prop = CreateObject(GetHashKey(v.model), v.coords.x, v.coords.y, v.coords.z, false, false, false)
         SetEntityHeading(prop, v.heading)
+        table.insert(Containerprop, prop)
 
         exports.ox_target:addLocalEntity(prop, {
             label = 'Search Container',
-            name = 'lynx_containerrobbery:searchcontainer',
+            name = 'lynx_containerrobbery:searchcontainer'..cid,
             icon = 'fas fa-search',
             distance = 2.0,
             debug = true,
             onSelect = function(data)
-                ESX.ShowNotification('You searched the container and found some loot!')
-                
+                local success = lib.skillCheck(v.difficulty, { 'w', 'a', 's', 'd' })
+                if success then
+                    if lib.ProgressCircle({
+                            duration = 10000,
+                            label = 'Searching Container...',
+                            useWhileDead = false,
+                            canCancel = true,
+                            disable = {
+                                car = true,
+                                move = true,
+                                combat = true,
+                                mouse = false
+                            },
+                            anim = {
+                                dict = 'anim@amb@clubhouse@tutorial@bkr_tut_ig3@',
+                                clip = 'machinic_loop_mechandplayer'
+                            }
+                        }) then
+                        ESX.ShowNotification('You searched the container and found some loot!')
 
-                TriggerServerEvent('Lynx_Containerrobbery:GiveLoot', cid, id, item)
-                DeleteEntity(prop)
-                RemoveBlip(blip)
+
+                        TriggerServerEvent('Lynx_Containerrobbery:GiveLoot', cid, id, item)
+                        DeleteEntity(prop)
+                        RemoveBlip(blip)
+                    end
+                end
             end
         })
     end
@@ -136,5 +159,10 @@ AddEventHandler('onResourceStop', function(resourceName)
     if ped ~= nil then
         DeleteEntity(ped)
         ped = nil
+    end
+    for _, container in ipairs(Containerprop) do
+        if container ~= nil then
+            DeleteEntity(container)
+        end
     end
 end)
