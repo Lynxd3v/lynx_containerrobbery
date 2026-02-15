@@ -1,26 +1,28 @@
-function LynxAntiCheatSecurity(source)
+function LynxAntiCheatSecurity(source, message)
     local xPlayer = ESX.GetPlayerFromId(source)
     if not xPlayer then return end
-    local text = 'LYNX CONTAINER ROBBERY [ANTI CHEAT]'..
-                '\nPlayer: '..GetPlayerName(source)..' ('..source..')'..
-                '\nLicense: '..ESX.GetPlayerFromId(source).identifier
 
-    xPlayer.kick('You have been kicked for suspected cheating. If you believe this is a mistake, please contact support.')
+    xPlayer.kick(
+    'You have been kicked for suspected cheating. If you believe this is a mistake, please contact support.')
+    LynxLogSecurity(message)
+
+    --Set Ban system here if you have one, you can use the identifier to ban the player from your server
 end
 
 function LynxLogSecurity(message)
-  if not Config.Webhook then return end
-  local text = {
-    {
-      ["color"] = "16711680",
-      ["title"] = "**LYNX CONTAINER ROBBERY [SECURITY LOG]**",
-      ["description"] = message,
-      ["footer"] = {
-        ["text"] = "Lynx Container Robbery | ".. os.date("%Y-%m-%d %H:%M:%S")
-      }
+    if not Config.Webhook then return end
+    local text = {
+        {
+            ["color"] = "16711680",
+            ["title"] = "**LYNX CONTAINER ROBBERY [SECURITY LOG]**",
+            ["description"] = message,
+            ["footer"] = {
+                ["text"] = "Lynx Container Robbery | " .. os.date("%Y-%m-%d %H:%M:%S")
+            }
+        }
     }
-  }
-  PerformHttpRequest(Config.Webhook, function(err, text, headers) end, 'POST', json.encode({username = "Lynx Container Robbery", embeds = text}), { ['Content-Type'] = 'application/json' })
+    PerformHttpRequest(Config.Webhook, function(err, text, headers) end, 'POST',
+        json.encode({ username = "Lynx Container Robbery", embeds = text }), { ['Content-Type'] = 'application/json' })
 end
 
 ESX.RegisterServerCallback('Lynx_Containerrobbery:PoliceJob', function(source, cb)
@@ -71,6 +73,20 @@ RegisterNetEvent('Lynx_Containerrobbery:Giveloot', function(cid, id, loot)
 
     MySQL.Async.execute('UPDATE Lynx_Containerrobbery SET xp = xp + @xp WHERE identifier = @identifier', {
         ['@xp'] = Config.Container[id].xpadd,
-        ['@identifier'] = xPlayer.identifier
+        ['@identifier'] = ESX.GetPlayerData().identifier
     })
+end)
+
+AddEventHandler('playerJoined', function(source)
+
+    MySQL.Async.fetchScalar('SELECT identifier FROM Lynx_Containerrobbery WHERE identifier = @identifier', {
+        ['@identifier'] = ESX.GetPlayerData().identifier
+    }, function(result)
+        if not result then
+            MySQL.Async.execute('INSERT INTO Lynx_Containerrobbery (identifier, xp) VALUES (@identifier, @xp)', {
+                ['@identifier'] = ESX.GetPlayerData().identifier,
+                ['@xp'] = 0
+            })
+        end
+    end)
 end)

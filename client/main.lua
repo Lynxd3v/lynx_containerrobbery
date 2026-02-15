@@ -124,7 +124,7 @@ RegisterNetEvent('Lynx_Containerrobbery:StartQuest', function(id)
                 local success = lib.skillCheck(v.difficulty, { 'w', 'a', 's', 'd' })
                 if success then
                     if lib.ProgressCircle({
-                            duration = 10000,
+                            duration = 10000, -- 10 seconds
                             label = 'Searching Container...',
                             useWhileDead = false,
                             canCancel = true,
