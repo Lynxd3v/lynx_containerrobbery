@@ -49,6 +49,17 @@ ESX.RegisterServerCallback('Lynx_Containerrobbery:GetXpLevel', function(src, cb,
     }))
 end)
 
+RegisterNetEvent('Lynx_Containerrobbery:StartContainerRobbery',function ()
+    for _, players in pairs(ESX.GetPlayers()) do
+        local xPlayers = ESX.GetPlayerFromId(players)
+        for _, v in ipairs(Config.PoliceJob) do
+            if xPlayers.getJob().name == v then
+                TriggerClientEvent('Lynx_Containerrobbery:AddRobberyBlip', players)
+            end
+        end
+    end
+end)
+
 RegisterNetEvent('Lynx_Containerrobbery:Giveloot', function(cid, id, loot)
     local xPlayer = ESX.GetPlayerFromId(source)
     local addItem = true
@@ -106,4 +117,10 @@ RegisterNetEvent('Lynx_Containerrobbery:AddXp', function(id,xp)
         ['@xp'] = xp,
         ['@identifier'] = xPlayer.identifier()
     })
+
+    local currentxp = MySQL.Sync.fetchScalar('SELECT xp FROM Lynx_Containerrobbery WHERE identifier = @identifier', {
+        ['@identifier'] = xPlayer.identifier()
+    })
+
+    LynxLogSecurity('Name: '..GetPlayerName(source)..'\nIdentifier:'.. xPlayer.identifier .. '\nAction: Gained XP\nCurrent XP: '.. currentxp ..'\nXP Added: '..xp..'')
 end)

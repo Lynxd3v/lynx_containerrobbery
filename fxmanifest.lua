@@ -10,6 +10,7 @@ files {
     'html/index.html',
     'html/src/style.css',
     'html/src/app.js',
+    'html/src/img/*.png'
 }
 
 server_script {

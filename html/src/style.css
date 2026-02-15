@@ -15,7 +15,7 @@
     border-radius: 2vh;
     border: 1vw solid rgb(83, 83, 83);
     color: white;
-    background-image: url('background.png'); 
+    background-image: url('img/background.png'); 
     background-size: cover;
     display: flex;
     flex-direction: column;
@@ -80,7 +80,7 @@ h1 {
     height: 45%;
     width: 100%;
     flex-shrink: 0;
-    background-image: url('Conatiner.png');
+    background-image: url('img/Conatiner.png');
     background-size: cover;
     background-position: center;
     border-radius: 1vh;

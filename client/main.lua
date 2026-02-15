@@ -131,7 +131,7 @@ RegisterNetEvent('Lynx_Containerrobbery:StartQuest', function(id)
                 local success = lib.skillCheck(v.difficulty, { 'w', 'a', 's', 'd' })
                 if success then
                     if lib.ProgressCircle({
-                            duration = 10000, -- 10 seconds
+                            duration = 60000, -- 1 minute
                             label = 'Searching Container...',
                             useWhileDead = false,
                             canCancel = true,
@@ -169,6 +169,21 @@ RegisterNetEvent('Lynx_Containerrobbery:StartQuest', function(id)
             end
         })
     end
+end)
+
+RegisterNetEvent('Lynx_Containerrobbery:AddRobberyBlip', function()
+    local blip = AddBlipForCoord(Config.NPCQuestPed.pedCoords.x, Config.NPCQuestPed.pedCoords.y, Config.NPCQuestPed.pedCoords.z)
+    ESX.ShowNotification('A container robbery has started! Check your map for the location.')
+    
+    SetBlipSprite(blip, 1)
+    SetBlipColour(blip, 1)
+    SetBlipAsShortRange(blip, true)
+    BeginTextCommandSetBlipName("STRING")
+    AddTextComponentString('Ongoing Container Robbery')
+    EndTextCommandSetBlipName(blip)
+
+    Wait(60000) -- Blip lasts for 1 minute, you can adjust this as needed
+    RemoveBlip(blip)
 end)
 
 AddEventHandler('onResourceStop', function(resourceName)
