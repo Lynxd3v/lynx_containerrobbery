@@ -12,6 +12,7 @@ window.addEventListener('message', function (event) {
 
 function RenderContainers(list) {
     list.forEach(element => {
+        $('.container-content').empty()
         $div = $(
             `<div class="rcontainer">
                     <div class="rcontainer-content" id="container-${element.id}">
@@ -36,11 +37,7 @@ function StartQuest (id) {
         id: id
     }),function (data) {
         if (data.success) {
-            $(`#container-${id}`).text('Sikeresen elindítottad a küldetést!')
-            setTimeout(() => {
-                $(`#container-${id}`).text('Küldetés felvétele!')
-                $('.container').fadeOut(400)
-            }, 2000);
+            alert(data.message)
         } else {
             alert(data.message)
         }    

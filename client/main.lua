@@ -3,6 +3,7 @@ local ped = nil
 local IsPanelOpen = false
 local lib = exports.ox_lib
 local Containerprop = {}
+local QuestActive = false
 
 CreateThread(function()
     local pm = Config.NPCQuestPed.pedModel
@@ -75,10 +76,17 @@ end)
 
 RegisterNUICallback('StartQuest', function(data, cb)
     local Container = Config.Container[data.id]
+
+    if QuestActive then
+        cb({ success = false, message = 'You already have an active quest.' })
+        return
+    end
+
     ESX.TriggerServerCallback('Lynx_Containerrobbery:GetXpLevel', function(xplevel)
         if xplevel >= Container.xp then
             cb({ success = true, message = 'Quest started successfully.' })
             TriggerServerEvent('Lynx_Containerrobbery:StartQuest', data.id)
+            QuestActive = true
         else
             cb({ success = false, message = 'You do not have enough XP to start this quest.' })
         end
