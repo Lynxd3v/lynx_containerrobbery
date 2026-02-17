@@ -34,7 +34,7 @@ function RenderContainers(list) {
 
 function StartQuest(id) {
     if ($(`#container-${id}`).text() === 'Küldetés felvétele') {
-        $.post('http://lynx_containerrobbery/StartQuest', JSON.stringify({
+        $.post(`https://${GetParentResourceName()}/StartQuest`, JSON.stringify({
             id: id
         }), function (data) {
             if (data.success) {
@@ -45,7 +45,7 @@ function StartQuest(id) {
             }
         })
     } else if ($(`#container-${id}`).text() === 'Küldetés megszakítása') {
-        $.post('http://lynx_containerrobbery/BreakingQuest', JSON.stringify({
+        $.post(`https://${GetParentResourceName()}/BreakingQuest`, JSON.stringify({
             id:id
         }), function (data) {
             if (data.success) {
@@ -60,6 +60,6 @@ function StartQuest(id) {
 
     $(window).on('keyup', function (e) {
         if (e.key === 'Escape') {
-            $.post('http://lynx_containerrobbery/ClosePanel')
+            $.post(`https://${GetParentResourceName()}/ClosePanel`)
         }
     })
