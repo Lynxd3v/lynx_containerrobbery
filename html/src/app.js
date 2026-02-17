@@ -11,8 +11,8 @@ window.addEventListener('message', function (event) {
 })
 
 function RenderContainers(list) {
+    $('.container-content').empty()
     list.forEach(element => {
-        $('.container-content').empty()
         $div = $(
             `<div class="rcontainer">
                     <div class="rcontainer-content" id="container-${element.id}">
@@ -23,7 +23,7 @@ function RenderContainers(list) {
                         <p>Küldetés nehézsége: ${element.difficulty}</p>
                         <p>Követelmény: ${element.xp}XP</p>
 
-                        <button onclick="StartQuest(${element.id})">Küldetés felvétele</button>
+                        <button onclick="StartQuest(${element.id})" id="button-${element.id}">Küldetés felvétele</button>
                     </div>
                 </div>
                 `
@@ -32,20 +32,34 @@ function RenderContainers(list) {
     });
 }
 
-function StartQuest (id) {
-    $.post('http://lynx_containerrobbery/StartQuest', JSON.stringify({
-        id: id
-    }),function (data) {
-        if (data.success) {
-            alert(data.message)
-        } else {
-            alert(data.message)
-        }    
-    })
+function StartQuest(id) {
+    if ($(`#container-${id}`).text() === 'Küldetés felvétele') {
+        $.post('http://lynx_containerrobbery/StartQuest', JSON.stringify({
+            id: id
+        }), function (data) {
+            if (data.success) {
+                alert(data.message)
+                text = 'Küldetés megszakítása'
+                $(`#container-${id}`).text(text)
+                $(`#button-${id}`).css('background-color', 'red')
+            }
+        })
+    } else if ($(`#container-${id}`).text() === 'Küldetés megszakítása') {
+        $.post('http://lynx_containerrobbery/BreakingQuest', JSON.stringify({
+            id:id
+        }), function (data) {
+            if (data.success) {
+                alert(data.message)
+                text = 'Küldetés felvétele'
+                $(`#container-${id}`).text(text)
+                $(`#button-${id}`).css('background-color', 'rgb(83, 83, 83)')
+            }
+        })
+    }
 }
 
-$(window).on('keyup',function (e) {
-    if (e.key === 'Escape') {
-        $.post('http://lynx_containerrobbery/ClosePanel')
-    }
-})
+    $(window).on('keyup', function (e) {
+        if (e.key === 'Escape') {
+            $.post('http://lynx_containerrobbery/ClosePanel')
+        }
+    })

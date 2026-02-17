@@ -22,8 +22,8 @@ Config.Container = {
                 coords = vector3(0,0,0),
                 heading = 0,
                 model = 'prop_container_01a',
-                difficulty = {'Easy','medium','medium'}, -- For minigame
-                loot = {
+                difficulty = {'easy','medium','medium'}, -- For minigame
+                loot = { -- Items to Give on Container break 
                     {item = 'bread', count = 5},
                     {item = 'water', count = 3},
                     {item = 'phone', count = 1}

@@ -10,7 +10,7 @@ CreateThread(function()
     local pc = Config.NPCQuestPed.pedCoords
 
     RequestModel(GetHashKey(pm))
-    while HasModelLoaded(pm) do Wait(10) end
+    while HasModelLoaded(pm) do Wait(1) end
 
     ped = CreatePed(4, pm, pc.x, pc.y, pc.z, Config.NPCQuestPed.pedHeading, false, true)
     FreezeEntityPosition(ped, true)
@@ -93,6 +93,15 @@ RegisterNUICallback('StartQuest', function(data, cb)
     end)
 end)
 
+RegisterNUICallback('BreakingQuest',function (data,cb)
+    QuestActive = false
+    for _, v in ipairs(Containerprop) do
+        DeleteEntity(v)
+    end
+    Containerprop = {}
+    cb({ success = true })
+end)
+
 RegisterNetEvent('Lynx_Containerrobbery:StartQuest', function(id)
     local Container = Config.Container[id]
 
@@ -130,9 +139,10 @@ RegisterNetEvent('Lynx_Containerrobbery:StartQuest', function(id)
             onSelect = function(data)
                 local success = lib.skillCheck(v.difficulty, { 'w', 'a', 's', 'd' })
                 if success then
+                    TriggerServerEvent('Lynx_Containerrobbery:StartContainerRobberyBlip',id,cid)
                     if lib.ProgressCircle({
                             duration = 60000, -- 1 minute
-                            label = 'Searching Container...',
+                            label = 'Breaking Container...',
                             useWhileDead = false,
                             canCancel = true,
                             disable = {
@@ -157,13 +167,14 @@ RegisterNetEvent('Lynx_Containerrobbery:StartQuest', function(id)
                             end
                         end
 
-                        if addXp then
-                            TriggerServerEvent('Lynx_Containerrobbery:AddXp', id, Container.xpadd)
-                        end
-
                         TriggerServerEvent('Lynx_Containerrobbery:GiveLoot', cid, id, item)
                         DeleteEntity(prop)
                         RemoveBlip(blip)
+
+                        if addXp then
+                            TriggerServerEvent('Lynx_Containerrobbery:AddXp', id, Container.xpadd)
+                            QuestActive = false
+                        end
                     end
                 end
             end
@@ -171,8 +182,9 @@ RegisterNetEvent('Lynx_Containerrobbery:StartQuest', function(id)
     end
 end)
 
-RegisterNetEvent('Lynx_Containerrobbery:AddRobberyBlip', function()
-    local blip = AddBlipForCoord(Config.NPCQuestPed.pedCoords.x, Config.NPCQuestPed.pedCoords.y, Config.NPCQuestPed.pedCoords.z)
+RegisterNetEvent('Lynx_Containerrobbery:AddRobberyBlip', function(id,cid)
+    local Containers = Config.Container[id].container[cid]
+    local blip = AddBlipForCoord(Containers.coords.x, Containers.coords.y, Containers.coords.z)
     ESX.ShowNotification('A container robbery has started! Check your map for the location.')
     
     SetBlipSprite(blip, 1)
