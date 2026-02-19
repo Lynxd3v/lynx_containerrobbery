@@ -5,7 +5,8 @@ local Containerprop = {}
 local QuestActive = false
 local tabletModel = 'prop_cs_tablet'
 local tabletprop = nil
-local cooldown = nil
+local cooldown = 0
+local cooldownTime = 360000 -- 1 hour cooldown, adjust as needed
 
 CreateThread(function()
     if Config.OpenMenu == 'pedModel' then
@@ -72,10 +73,10 @@ CreateThread(function()
             while not HasModelLoaded(GetHashKey(tabletModel)) do Wait(10) end
             local ped = PlayerPedId()
             tabletprop = CreateObject(GetHashKey(tabletModel), 0, 0, 0, true, true, true)
-            AttachEntityToEntity(tabletprop, ped, GetPedBoneIndex(ped, 57005), 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, true, true,
-                false,
-                true,
-                1, true)
+            AttachEntityToEntity(tabletprop, ped, GetPedBoneIndex(ped, 57005), 0.12, 0.10, -0.13, -150.0, 20.0, 0.3, true, true, false, true, 1, true)
+
+            RequestAnimDict('amb@world_human_seat_wall_tablet@female@base')
+            while not HasAnimDictLoaded('amb@world_human_seat_wall_tablet@female@base') do Wait(10) end
 
             TaskPlayAnim(ped, 'amb@world_human_seat_wall_tablet@female@base', 'base', 8.0, -8.0, -1, 50, 0, false, false,false)
 
@@ -125,12 +126,17 @@ RegisterNUICallback('ClosePanel', function(data, cb)
     })
     IsPanelOpen = not IsPanelOpen
     SetNuiFocus(IsPanelOpen, IsPanelOpen)
+    ExecuteCommand('lynx_cfixtablet')
+    cb()
+end)
+
+RegisterCommand('lynx_cfixtablet', function()
     if tabletprop ~= nil then
         DeleteObject(tabletprop)
         tabletprop = nil
     end
-    cb()
-end)
+    ClearPedTasks(PlayerPedId())
+end,false)
 
 RegisterNUICallback('StartQuest', function(data, cb)
     local Container = Config.Container[data.id]
@@ -143,13 +149,15 @@ RegisterNUICallback('StartQuest', function(data, cb)
             if xplevel >= Container.xp then
                 if GetGameTimer() < cooldown then
                     cb({ success = false, message = 'You are on cooldown.' })
+                    ESX.ShowNotification('You are on cooldown. Please wait ' .. math.ceil((cooldown - GetGameTimer()) / 1000) .. ' seconds.')
                 else
                     cb({ success = true, message = 'Quest started successfully.' })
                     TriggerServerEvent('Lynx_Containerrobbery:StartQuest', data.id)
                     QuestActive = true
-                    cooldown = GetGameTimer() + 30000
+                    cooldown = GetGameTimer() + cooldownTime
                 end
             else
+                ESX.ShowNotification('You do not have enough XP to start this quest.')
                 cb({ success = false, message = 'You do not have enough XP to start this quest.' })
             end
         end)
@@ -162,8 +170,8 @@ RegisterNUICallback('BreakingQuest', function(data, cb)
         DeleteEntity(v)
     end
     Containerprop = {}
-    cooldown = GetGameTimer() + 30000 -- 30 second cooldown after breaking a container, adjust as needed
-
+    cooldown = GetGameTimer() + cooldownTime -- 30 second cooldown after breaking a container, adjust as needed
+    ExecuteCommand('lynx_cfixtablet')
     cb({ success = true })
 end)
 
@@ -269,8 +277,5 @@ AddEventHandler('onResourceStop', function(resourceName)
             DeleteEntity(container)
         end
     end
-    if tabletprop ~= nil then
-        DeleteObject(tabletprop)
-        tabletprop = nil
-    end
+    ExecuteCommand('lynx_cfixtablet')
 end)
