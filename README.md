@@ -1,3 +1,2 @@
-Next Update:
-Fix Tablet (Emote)
-Add Cooldown
+Hi!
+If you have a ban system add to security file.

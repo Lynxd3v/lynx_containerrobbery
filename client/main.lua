@@ -2,6 +2,7 @@ ESX = exports.es_extended:getSharedObject()
 local ped = nil
 local IsPanelOpen = false
 local Containerprop = {}
+local Containerblip = {}
 local QuestActive = false
 local tabletModel = 'prop_cs_tablet'
 local tabletprop = nil
@@ -73,12 +74,14 @@ CreateThread(function()
             while not HasModelLoaded(GetHashKey(tabletModel)) do Wait(10) end
             local ped = PlayerPedId()
             tabletprop = CreateObject(GetHashKey(tabletModel), 0, 0, 0, true, true, true)
-            AttachEntityToEntity(tabletprop, ped, GetPedBoneIndex(ped, 57005), 0.12, 0.10, -0.13, -150.0, 20.0, 0.3, true, true, false, true, 1, true)
+            AttachEntityToEntity(tabletprop, ped, GetPedBoneIndex(ped, 57005), 0.12, 0.10, -0.13, -150.0, 20.0, 0.3, true,
+                true, false, true, 1, true)
 
             RequestAnimDict('amb@world_human_seat_wall_tablet@female@base')
             while not HasAnimDictLoaded('amb@world_human_seat_wall_tablet@female@base') do Wait(10) end
 
-            TaskPlayAnim(ped, 'amb@world_human_seat_wall_tablet@female@base', 'base', 8.0, -8.0, -1, 50, 0, false, false,false)
+            TaskPlayAnim(ped, 'amb@world_human_seat_wall_tablet@female@base', 'base', 8.0, -8.0, -1, 50, 0, false, false,
+                false)
 
             ESX.TriggerServerCallback('Lynx_Containerrobbery:PoliceJob', function(IsNotPolice)
                 if IsNotPolice then
@@ -136,7 +139,7 @@ RegisterCommand('lynx_cfixtablet', function()
         tabletprop = nil
     end
     ClearPedTasks(PlayerPedId())
-end,false)
+end, false)
 
 RegisterNUICallback('StartQuest', function(data, cb)
     local Container = Config.Container[data.id]
@@ -149,12 +152,12 @@ RegisterNUICallback('StartQuest', function(data, cb)
             if xplevel >= Container.xp then
                 if GetGameTimer() < cooldown then
                     cb({ success = false, message = 'You are on cooldown.' })
-                    ESX.ShowNotification('You are on cooldown. Please wait ' .. math.ceil(((cooldown - GetGameTimer()) / 1000) / 60) .. ' minutes.')
+                    ESX.ShowNotification('You are on cooldown. Please wait ' ..
+                        math.ceil(((cooldown - GetGameTimer()) / 1000) / 60) .. ' minutes.')
                 else
                     cb({ success = true, message = 'Quest started successfully.' })
                     TriggerServerEvent('Lynx_Containerrobbery:StartQuest', data.id)
                     QuestActive = true
-                    cooldown = GetGameTimer() + cooldownTime
                 end
             else
                 ESX.ShowNotification('You do not have enough XP to start this quest.')
@@ -169,8 +172,10 @@ RegisterNUICallback('BreakingQuest', function(data, cb)
     for _, v in ipairs(Containerprop) do
         DeleteEntity(v)
     end
+    for _, blip in ipairs(Containerblip) do
+        RemoveBlip(blip)
+    end
     Containerprop = {}
-    cooldown = GetGameTimer() + cooldownTime -- 30 second cooldown after breaking a container, adjust as needed
     ExecuteCommand('lynx_cfixtablet')
     cb({ success = true })
 end)
@@ -187,6 +192,15 @@ RegisterNetEvent('Lynx_Containerrobbery:StartQuest', function(id)
             }
             table.insert(item, itemandcount)
         end
+
+        local blip = AddBlipForCoord(v.coords.x, v.coords.y, v.coords.z)
+        SetBlipSprite(blip, 1)
+        SetBlipColour(blip, 1)
+        BeginTextCommandSetBlipName("STRING")
+        AddTextComponentString('Container Location')
+        EndTextCommandSetBlipName(blip)
+
+        table.insert(Containerblip,blip)
 
         RequestModel(GetHashKey(v.model))
         while not HasModelLoaded(v.model) do Wait(10) end
@@ -234,6 +248,7 @@ RegisterNetEvent('Lynx_Containerrobbery:StartQuest', function(id)
                             end
                         end
                         if addXp then
+                            cooldown = GetGameTimer() + cooldownTime
                             TriggerServerEvent('Lynx_Containerrobbery:AddXp', id)
                             QuestActive = false
                             SendNUIMessage({
