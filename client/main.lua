@@ -274,7 +274,7 @@ RegisterNetEvent('Lynx_Containerrobbery:AddRobberyBlip', function(id, cid)
     BeginTextCommandSetBlipName("STRING")
     AddTextComponentString('Ongoing Container Robbery')
     EndTextCommandSetBlipName(blip)
-
+    
     Wait(60000) -- Blip lasts for 1 minute, you can adjust this as needed
     RemoveBlip(blip)
 end)
