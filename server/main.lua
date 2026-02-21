@@ -32,7 +32,7 @@ end)
 RegisterNetEvent('Lynx_Containerrobbery:StartQuest',function (id)
     local src = source
     QuestActive[src] = id
-    TriggerClientEvent('Lynx_Containerrobbery:StartQuest', src, id)
+    TriggerClientEvent('Lynx_Containerrobbery:StartQuest', -1, id)
 end)
 
 RegisterNetEvent('Lynx_Containerrobbery:StartContainerRobberyBlip', function(id,cid)
@@ -90,7 +90,7 @@ RegisterCommand('getIdentifier', function(source, args, rawCommand)
     TriggerClientEvent('esx:showNotification', source, xPlayer.getIdentifier())
 end,false)
 
-AddEventHandler('esx:playerLoaded', function(source)
+AddEventHandler('playerJoining', function(source)
     local _source = source
     local xPlayer = ESX.GetPlayerFromId(_source)
     if not xPlayer then return end
@@ -100,7 +100,7 @@ AddEventHandler('esx:playerLoaded', function(source)
     })
 
     if not result then
-        MySQL.Sync.execute('INSERT INTO lynx_containerrobbery (identifier, xp) VALUES (?,?)', {
+        MySQL.Sync.insert('INSERT INTO lynx_containerrobbery (identifier,xp) VALUES (?,?)', {
             xPlayer.getIdentifier(),
             0
         })

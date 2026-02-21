@@ -70,19 +70,6 @@ CreateThread(function()
         })
     else
         RegisterNetEvent('Lynx_Containerrobbery:OpenPanelwithTablet', function()
-            RequestModel(GetHashKey(tabletModel))
-            while not HasModelLoaded(GetHashKey(tabletModel)) do Wait(10) end
-            local ped = PlayerPedId()
-            tabletprop = CreateObject(GetHashKey(tabletModel), 0, 0, 0, true, true, true)
-            AttachEntityToEntity(tabletprop, ped, GetPedBoneIndex(ped, 57005), 0.12, 0.10, -0.13, -150.0, 20.0, 0.3, true,
-                true, false, true, 1, true)
-
-            RequestAnimDict('amb@world_human_seat_wall_tablet@female@base')
-            while not HasAnimDictLoaded('amb@world_human_seat_wall_tablet@female@base') do Wait(10) end
-
-            TaskPlayAnim(ped, 'amb@world_human_seat_wall_tablet@female@base', 'base', 8.0, -8.0, -1, 50, 0, false, false,
-                false)
-
             ESX.TriggerServerCallback('Lynx_Containerrobbery:PoliceJob', function(IsNotPolice)
                 if IsNotPolice then
                     local ContainerData = {}
@@ -106,6 +93,23 @@ CreateThread(function()
                         table.insert(ContainerData, ContainerList)
                     end
                     ESX.TriggerServerCallback('Lynx_Containerrobbery:GetXpLevel', function(xplevel)
+                        RequestModel(GetHashKey(tabletModel))
+                        while not HasModelLoaded(GetHashKey(tabletModel)) do Wait(10) end
+                        local ped = PlayerPedId()
+                        tabletprop = CreateObject(GetHashKey(tabletModel), 0, 0, 0, true, true, true)
+                        AttachEntityToEntity(tabletprop, ped, GetPedBoneIndex(ped, 57005), 0.12, 0.10, -0.13, -150.0,
+                            20.0, 0.3, true,
+                            true, false, true, 1, true)
+
+                        RequestAnimDict('amb@world_human_seat_wall_tablet@female@base')
+                        while not HasAnimDictLoaded('amb@world_human_seat_wall_tablet@female@base') do Wait(10) end
+
+                        TaskPlayAnim(ped, 'amb@world_human_seat_wall_tablet@female@base', 'base', 8.0, -8.0, -1, 50, 0,false, false,false)
+
+                        SendNUIMessage({
+
+                        })
+
                         SendNUIMessage({
                             action = 'open',
                             list = ContainerData,
@@ -200,7 +204,7 @@ RegisterNetEvent('Lynx_Containerrobbery:StartQuest', function(id)
         AddTextComponentString('Container Location')
         EndTextCommandSetBlipName(blip)
 
-        table.insert(Containerblip,blip)
+        table.insert(Containerblip, blip)
 
         RequestModel(GetHashKey(v.model))
         while not HasModelLoaded(v.model) do Wait(10) end
@@ -236,18 +240,19 @@ RegisterNetEvent('Lynx_Containerrobbery:StartQuest', function(id)
                                 clip = 'machinic_loop_mechandplayer'
                             } }) then
                         ESX.ShowNotification('You searched the container and found some loot!')
-
+                        
                         local addXp = true
 
                         TriggerServerEvent('Lynx_Containerrobbery:Giveloot', cid, id, item)
                         DeleteEntity(prop)
+                        RemoveBlip(blip)
                         for k, v in pairs(Containerprop) do
                             if DoesEntityExist(v) then
                                 addXp = false
                                 break
                             end
                         end
-                        if addXp then
+                        if addXp and QuestActive then
                             cooldown = GetGameTimer() + cooldownTime
                             TriggerServerEvent('Lynx_Containerrobbery:AddXp', id)
                             QuestActive = false
@@ -274,7 +279,7 @@ RegisterNetEvent('Lynx_Containerrobbery:AddRobberyBlip', function(id, cid)
     BeginTextCommandSetBlipName("STRING")
     AddTextComponentString('Ongoing Container Robbery')
     EndTextCommandSetBlipName(blip)
-    
+
     Wait(60000) -- Blip lasts for 1 minute, you can adjust this as needed
     RemoveBlip(blip)
 end)

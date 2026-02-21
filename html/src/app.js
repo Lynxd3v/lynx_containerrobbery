@@ -43,7 +43,6 @@ function RenderContainers(list) {
 }
 
 function StartQuest(id) {
-    console.log($(`#button-${id}`).text())
     if ($(`#button-${id}`).text() === 'Küldetés felvétele') {
         $.post(`https://${GetParentResourceName()}/StartQuest`, JSON.stringify({
             id: id
